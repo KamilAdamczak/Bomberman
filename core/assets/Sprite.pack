@@ -1,0 +1,103 @@
+
+Sprite.png
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+player
+  rotate: false
+  xy: 1, 1
+  size: 108, 48
+  orig: 108, 48
+  offset: 0, 0
+  index: -1
+player_death
+  rotate: false
+  xy: 111, 33
+  size: 108, 16
+  orig: 108, 16
+  offset: 0, 0
+  index: -1
+explosion_hori_end
+  rotate: false
+  xy: 111, 15
+  size: 64, 16
+  orig: 64, 16
+  offset: 0, 0
+  index: -1
+explosion_hori_middle
+  rotate: false
+  xy: 221, 33
+  size: 64, 16
+  orig: 64, 16
+  offset: 0, 0
+  index: -1
+explosion_middle
+  rotate: false
+  xy: 177, 15
+  size: 64, 16
+  orig: 64, 16
+  offset: 0, 0
+  index: -1
+explosion_verti_end
+  rotate: false
+  xy: 287, 33
+  size: 64, 16
+  orig: 64, 16
+  offset: 0, 0
+  index: -1
+explosion_verti_middle
+  rotate: false
+  xy: 243, 15
+  size: 64, 16
+  orig: 64, 16
+  offset: 0, 0
+  index: -1
+bomb
+  rotate: false
+  xy: 353, 33
+  size: 48, 16
+  orig: 48, 16
+  offset: 0, 0
+  index: -1
+player_down
+  rotate: false
+  xy: 309, 15
+  size: 44, 16
+  orig: 44, 16
+  offset: 0, 0
+  index: -1
+player_side
+  rotate: false
+  xy: 403, 33
+  size: 44, 16
+  orig: 44, 16
+  offset: 0, 0
+  index: -1
+player_up
+  rotate: false
+  xy: 355, 15
+  size: 44, 16
+  orig: 44, 16
+  offset: 0, 0
+  index: -1
+enemy_right
+  rotate: false
+  xy: 449, 33
+  size: 32, 16
+  orig: 32, 16
+  offset: 0, 0
+  index: -1
+power_ups
+  rotate: false
+  xy: 401, 15
+  size: 32, 16
+  orig: 32, 16
+  offset: 0, 0
+  index: -1
+enemy_death
+  rotate: false
+  xy: 483, 33
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1

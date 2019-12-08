@@ -11,6 +11,7 @@ import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.kamiladamczak.game.Bomberman;
+import com.kamiladamczak.game.Screens.PlayScreen;
 
 public class Hud implements Disposable {
     public Stage stage;
@@ -33,7 +34,7 @@ public class Hud implements Disposable {
         timeCount = 0;
         score = 0;
 
-        //viewport = new FitViewport(, new OrthographicCamera());
+        viewport = new FitViewport(Bomberman.WIDTH,Bomberman.HEIGHT, new OrthographicCamera());
         stage = new Stage(viewport, sb);
 
         Table table = new Table();

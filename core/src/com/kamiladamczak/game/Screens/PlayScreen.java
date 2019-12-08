@@ -1,10 +1,12 @@
 package com.kamiladamczak.game.Screens;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
@@ -14,17 +16,22 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.kamiladamczak.game.Bomberman;
-import com.kamiladamczak.game.tools.WorldContactListener;
+import com.kamiladamczak.game.Scenes.Hud;
+import com.kamiladamczak.game.Sprites.Player.Player;
+import com.kamiladamczak.game.Sprites.Player.PlayerController;
+import com.kamiladamczak.game.Tools.B2WorldCreator;
+
 
 public class PlayScreen implements Screen {
-    private final Bomberman game;
-    private final float CELLSIZE = 16;
-    private final float WIDTH = 19*CELLSIZE;
-    private final float HEIGHT = 15*CELLSIZE;
+    TextureAtlas atlas;
+    private Bomberman game;
 
     //Camera
     private OrthographicCamera gamecam;
     private Viewport gamePort;
+
+    //HUD
+    private Hud hud;
 
     //Tiled Map variables
     private TmxMapLoader maploader;
@@ -35,22 +42,25 @@ public class PlayScreen implements Screen {
     private World world;
     private Box2DDebugRenderer b2dr;
 
-    //HUD
-
-
+    private Player player;
+    private PlayerController pcon;
 
 
     public PlayScreen(Bomberman game) {
         this.game = game;
+    }
 
+    @Override
+    public void show() {
+        atlas = new TextureAtlas("Sprite.pack");
         //Create cam used to follow player through cam world
         gamecam = new OrthographicCamera();
 
         //create a FitViewport to maintain virutal aspect ratio despite screen size
-        gamePort = new FitViewport(WIDTH,HEIGHT, gamecam);
+        gamePort = new FitViewport(Bomberman.WIDTH, Bomberman.HEIGHT, gamecam);
 
         //create ouor game HUD for scores/timers/level info
-
+        hud = new Hud(game.batch);
 
         //Load our map and setup our map renderer
         maploader = new TmxMapLoader();
@@ -60,25 +70,32 @@ public class PlayScreen implements Screen {
         //initially set our gamecam to be centered correctly at the start of map
         gamecam.position.set(gamePort.getWorldWidth()/2, gamePort.getWorldHeight()/2, 0);
 
-        world = new World(new Vector2(0, -10), true);
+        world = new World(new Vector2(0, 0), true);
         b2dr = new Box2DDebugRenderer();
 
-
-        world.setContactListener(new WorldContactListener());
-
+        new B2WorldCreator(this);
+        player = new Player(world, this);
+        pcon = new PlayerController(player);
+       // world.setContactListener(new WorldContactListener());
 
     }
 
-    @Override
-    public void show() {
+    public TextureAtlas getAtlas() {
+        return atlas;
+    }
+
+    public void handleInput(float dt) {
+
+        pcon.update(dt);
 
     }
 
 
     public void update(float dt) {
-
-        world.step(1/60f, 6,2);
-
+        handleInput(dt);
+       world.step(1/60f, 1,2);
+        hud.update(dt);
+        player.update(dt);
         gamecam.update();
         renderer.setView(gamecam);
     }
@@ -95,7 +112,10 @@ public class PlayScreen implements Screen {
         b2dr.render(world, gamecam.combined);
         game.batch.setProjectionMatrix(gamecam.combined);
         game.batch.begin();
+        player.draw(game.batch);
         game.batch.end();
+        game.batch.setProjectionMatrix(hud.stage.getCamera().combined);
+        //hud.stage.draw();
 
     }
 
@@ -121,6 +141,18 @@ public class PlayScreen implements Screen {
 
     @Override
     public void dispose() {
+        map.dispose();
+        renderer.dispose();
+        world.dispose();
+        b2dr.dispose();
+        hud.dispose();
+    }
 
+    public World getWorld() {
+        return world;
+    }
+
+    public TiledMap getMap() {
+        return map;
     }
 }
