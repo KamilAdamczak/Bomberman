@@ -13,13 +13,17 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.scenes.scene2d.ui.List;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.kamiladamczak.game.Bomberman;
 import com.kamiladamczak.game.Scenes.Hud;
+import com.kamiladamczak.game.Sprites.Bomb;
 import com.kamiladamczak.game.Sprites.Player.Player;
 import com.kamiladamczak.game.Sprites.Player.PlayerController;
 import com.kamiladamczak.game.Tools.B2WorldCreator;
+import com.kamiladamczak.game.Tools.WorldContactListener;
 
 
 public class PlayScreen implements Screen {
@@ -37,6 +41,8 @@ public class PlayScreen implements Screen {
     private TmxMapLoader maploader;
     private TiledMap map;
     private OrthogonalTiledMapRenderer renderer;
+
+    private Array<Bomb> bombs;
 
     //Box2D variables
     private World world;
@@ -75,8 +81,9 @@ public class PlayScreen implements Screen {
 
         new B2WorldCreator(this);
         player = new Player(world, this);
-        pcon = new PlayerController(player);
-       // world.setContactListener(new WorldContactListener());
+        pcon = new PlayerController(player, this);
+       world.setContactListener(new WorldContactListener());
+        bombs = new Array<Bomb>();
 
     }
 
@@ -96,6 +103,9 @@ public class PlayScreen implements Screen {
        world.step(1/60f, 1,2);
         hud.update(dt);
         player.update(dt);
+        for(Bomb bomb:bombs) {
+            bomb.update(dt);
+        }
         gamecam.update();
         renderer.setView(gamecam);
     }
@@ -113,6 +123,10 @@ public class PlayScreen implements Screen {
         game.batch.setProjectionMatrix(gamecam.combined);
         game.batch.begin();
         player.draw(game.batch);
+
+        for(Bomb bomb:bombs) {
+            bomb.draw(game.batch);
+        }
         game.batch.end();
         game.batch.setProjectionMatrix(hud.stage.getCamera().combined);
         //hud.stage.draw();
@@ -154,5 +168,13 @@ public class PlayScreen implements Screen {
 
     public TiledMap getMap() {
         return map;
+    }
+
+    public void newBomb(Bomb bomb) {
+        bombs.add(bomb);
+    }
+
+    public Array<Bomb> getBombs() {
+        return bombs;
     }
 }

@@ -13,10 +13,14 @@ import com.badlogic.gdx.physics.box2d.EdgeShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
+import com.kamiladamczak.game.Bomberman;
 import com.kamiladamczak.game.Screens.PlayScreen;
+import com.kamiladamczak.game.Sprites.Bomb;
+
+import static com.badlogic.gdx.math.MathUtils.round;
 
 public class Player extends Sprite {
-    public final static float STOPFACTOR = .85f;
+    public final static float STOPFACTOR = .00f;
     public final static float MAXSPEED = 80f;
 
     public enum State {DOWN, LEFT, UP, RIGHT, STOP};
@@ -65,13 +69,12 @@ public class Player extends Sprite {
         horiStand = new TextureRegion(screen.getAtlas().findRegion("player_side"), 15,0,14,16);
         setBounds(0,0, 16,16);
         setRegion(upStand);
-
+        dir = Direction.DOWN;
     }
 
     public void update(float dt) {
         setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight()/2);
         setRegion(getFrame(dt));
-
 
     }
     public TextureRegion getFrame(float dt) {
@@ -109,7 +112,7 @@ public class Player extends Sprite {
                     } else if(dir == Direction.DOWN) {
                         region = downStand;
                     } else {
-                        region = horiStand;
+                        region = upStand;
                     }
                 break;
             default:
@@ -119,7 +122,7 @@ public class Player extends Sprite {
 
         stateTimer = currentState == previousState ? stateTimer + dt : 0;
 
-            previousState = currentState;
+        previousState = currentState;
         return region;
     }
 
@@ -147,12 +150,12 @@ public class Player extends Sprite {
 
         FixtureDef fdef = new FixtureDef();
         CircleShape shape = new CircleShape();
-        shape.setRadius(7);
-//        fdef.filter.categoryBits = MarioBros.MARIO_BIT;
-//        fdef.filter.maskBits = MarioBros.GROUND_BIT | MarioBros.BRICK_BIT | MarioBros.COIN_BIT | MarioBros.ENEMY_BIT | MarioBros.OBJECT_BIT;
+        shape.setRadius(8);
+        fdef.filter.categoryBits = Bomberman.PLAYER_BIT;
+        fdef.filter.maskBits = Bomberman.SOLID_BIT | Bomberman.DAMAGE_BIT | Bomberman.POWERUP_BIT;
 
         fdef.shape = shape;
-        b2body.createFixture(fdef);
+        b2body.createFixture(fdef).setUserData("player");
 
     }
 }
