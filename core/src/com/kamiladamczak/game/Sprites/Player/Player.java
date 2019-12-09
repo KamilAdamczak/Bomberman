@@ -152,7 +152,7 @@ public class Player extends Sprite {
         CircleShape shape = new CircleShape();
         shape.setRadius(8);
         fdef.filter.categoryBits = Bomberman.PLAYER_BIT;
-        fdef.filter.maskBits = Bomberman.SOLID_BIT | Bomberman.DAMAGE_BIT | Bomberman.POWERUP_BIT;
+        fdef.filter.maskBits = Bomberman.SOLID_BIT | Bomberman.POWERUP_BIT |Bomberman.BRICK_BIT;
 
         fdef.shape = shape;
         b2body.createFixture(fdef).setUserData("player");

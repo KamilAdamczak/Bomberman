@@ -13,13 +13,13 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
-import com.badlogic.gdx.scenes.scene2d.ui.List;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.kamiladamczak.game.Bomberman;
 import com.kamiladamczak.game.Scenes.Hud;
 import com.kamiladamczak.game.Sprites.Bomb;
+import com.kamiladamczak.game.Sprites.Explosion.Explosion;
 import com.kamiladamczak.game.Sprites.Player.Player;
 import com.kamiladamczak.game.Sprites.Player.PlayerController;
 import com.kamiladamczak.game.Tools.B2WorldCreator;
@@ -43,6 +43,7 @@ public class PlayScreen implements Screen {
     private OrthogonalTiledMapRenderer renderer;
 
     private Array<Bomb> bombs;
+    private Array<Explosion> expolsions;
 
     //Box2D variables
     private World world;
@@ -83,7 +84,8 @@ public class PlayScreen implements Screen {
         player = new Player(world, this);
         pcon = new PlayerController(player, this);
        world.setContactListener(new WorldContactListener());
-        bombs = new Array<Bomb>();
+        bombs = new Array<>();
+        expolsions = new Array<>();
 
     }
 
@@ -103,12 +105,16 @@ public class PlayScreen implements Screen {
 
     public void update(float dt) {
         handleInput(dt);
-       world.step(1/60f, 0,0);
+       world.step(1/60f, 0,2);
         hud.update(dt);
         player.update(dt);
         for(Bomb bomb:bombs) {
             bomb.update(dt);
         }
+        for(Explosion expolsion:expolsions) {
+            expolsion.update(dt);
+        }
+
         gamecam.update();
         renderer.setView(gamecam);
     }
@@ -130,6 +136,9 @@ public class PlayScreen implements Screen {
 
         for(Bomb bomb:bombs) {
             bomb.draw(game.batch);
+        }
+        for(Explosion exposion:expolsions) {
+            exposion.draw(game.batch);
         }
         game.batch.end();
         game.batch.setProjectionMatrix(hud.stage.getCamera().combined);
@@ -189,4 +198,12 @@ public class PlayScreen implements Screen {
    public Vector2 getGridPosition(float x, float y) {
        return new Vector2(((int)x/16), ((int)y/16));
    }
+
+    public void newExplosion(Explosion explosion) {
+        expolsions.add(explosion);
+    }
+
+    public void destroyExplosion(Explosion explosion) {
+        expolsions.removeValue(explosion, true);
+    }
 }

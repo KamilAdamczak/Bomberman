@@ -18,6 +18,7 @@ public class Bomberman extends Game {
 	public static final short DAMAGE_BIT = 4;
 	public static final short DESTORYED_BIT = 16;
 	public static final short POWERUP_BIT = 32;
+	public static final short BRICK_BIT = 64;
 
 	public SpriteBatch batch;
 	@Override

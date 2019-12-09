@@ -1,4 +1,4 @@
-package com.kamiladamczak.game.Sprites;
+package com.kamiladamczak.game.Sprites.Explosion;
 
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -14,91 +14,77 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.kamiladamczak.game.Bomberman;
 import com.kamiladamczak.game.Screens.PlayScreen;
-import com.kamiladamczak.game.Sprites.Explosion.Explosion;
+import com.kamiladamczak.game.Sprites.Bomb;
 import com.kamiladamczak.game.Sprites.Player.Player;
 
-
-public class Bomb extends Sprite {
+public class Explosion extends Sprite {
     private World world;
     private PlayScreen screen;
     private Player player;
+    private Bomb bomb;
     private Body b2body;
     private int power;
-    private float x;
-    private float y;
 
+    private Array<Body> b2bodys;
 
     private BodyDef bdef = new BodyDef();
     private FixtureDef fdef = new FixtureDef();
     private CircleShape shape = new CircleShape();
-    private boolean collsion = false;
-
 
     private float stateTime;
-    private Animation<TextureRegion> bombAnimation;
+    private Animation<TextureRegion> expolsionAnimation;
     private Array<TextureRegion> frames;
 
-    private float detonationTime;
+    private Array<Flame> flames;
 
-    public Bomb(PlayScreen screen,  Player player, float x, float y, int power) {
+
+    public Explosion(PlayScreen screen, Player player, Bomb bomb, int power) {
+        flames = new Array<>();
         this.world = screen.getWorld();
         this.screen = screen;
         this.player = player;
-        this.x = x*Bomberman.CELLSIZE;
-        this.y = y*Bomberman.CELLSIZE;
-        setPosition((int)this.x+8,(int)this.y+8);
+        this.bomb = bomb;
         this.power = power;
-        defineBomb();
-
+        setPosition(bomb.getX()+8, bomb.getY()+8);
+        b2bodys = new Array<>();
+        define();
 
         frames = new Array<>();
-        for(int i=0; i<3; i++) {
-            frames.add(new TextureRegion(screen.getAtlas().findRegion("bomb"), i*16, 0, 16,16));
+        for(int i=0; i<4; i++) {
+            frames.add(new TextureRegion(screen.getAtlas().findRegion("explosion_middle"), i*16, 0, 16,16));
         }
-        bombAnimation = new Animation(0.5f, frames);
+        expolsionAnimation = new Animation(0.1f, frames);
+        expolsionAnimation.setPlayMode(Animation.PlayMode.LOOP_REVERSED);
         stateTime = 0;
         setBounds(getX(), getY(), 16, 16);
 
+        System.out.println("new fire from:"+this.player+" of power: "+power);
     }
 
     public void update(float dt) {
-
         stateTime += dt;
-        detonationTime += dt;
         setPosition(b2body.getPosition().x-getWidth()/2, b2body.getPosition().y-getHeight()/2);
-        if(!collsion) {
-            if(!Intersector.overlaps(player.getBoundingRectangle(),this.getBoundingRectangle())) {
-                collsion = true;
-            }
-        } else {
-            Fixture fixture;
-            fixture = b2body.createFixture(fdef);
-            Filter filter = new Filter();
-            filter.categoryBits = Bomberman.SOLID_BIT;
-            fixture.setFilterData(filter);
-        }
-        setRegion(bombAnimation.getKeyFrame(stateTime, true));
-
-        if(detonationTime >= 3f) {
-            this.boom();
-            screen.newExplosion(new Explosion(screen, player, this, power));
+        setRegion(expolsionAnimation.getKeyFrame(stateTime,false));
+        if(expolsionAnimation.isAnimationFinished(stateTime)) {
+            screen.destroyExplosion(this);
+            world.destroyBody(this.b2body);
         }
     }
 
-    private void boom() {
-        System.out.println("BOOM!");
-        world.destroyBody(b2body);
-        screen.destroyBomb(this);
-    }
-
-    private void defineBomb() {
+    private void define() {
+        //define middle part
         bdef.position.set(getX(),getY());
         bdef.type = BodyDef.BodyType.StaticBody;
         b2body = world.createBody(bdef);
 
         shape.setRadius(8);
-        fdef.filter.categoryBits = Bomberman.DESTORYED_BIT;
+        fdef.filter.categoryBits = Bomberman.DAMAGE_BIT;
         fdef.shape = shape;
-        b2body.createFixture(fdef).setUserData("bomb");
+        b2body.createFixture(fdef).setUserData("flames");
+
+        //define right part
+        for(int i=0; i<power; i++) {
+
+        }
     }
 }
