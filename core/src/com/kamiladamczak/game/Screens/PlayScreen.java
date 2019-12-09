@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
@@ -22,6 +23,7 @@ import com.kamiladamczak.game.Sprites.Bomb;
 import com.kamiladamczak.game.Sprites.Explosion.Explosion;
 import com.kamiladamczak.game.Sprites.Player.Player;
 import com.kamiladamczak.game.Sprites.Player.PlayerController;
+import com.kamiladamczak.game.Sprites.Solid;
 import com.kamiladamczak.game.Tools.B2WorldCreator;
 import com.kamiladamczak.game.Tools.WorldContactListener;
 
@@ -39,11 +41,13 @@ public class PlayScreen implements Screen {
 
     //Tiled Map variables
     private TmxMapLoader maploader;
-    private TiledMap map;
+    public TiledMap map;
     private OrthogonalTiledMapRenderer renderer;
 
     private Array<Bomb> bombs;
     private Array<Explosion> expolsions;
+
+    private Array<Solid> solids= new Array<>();;
 
     //Box2D variables
     private World world;
@@ -83,9 +87,10 @@ public class PlayScreen implements Screen {
         new B2WorldCreator(this);
         player = new Player(world, this);
         pcon = new PlayerController(player, this);
-       world.setContactListener(new WorldContactListener());
+        world.setContactListener(new WorldContactListener());
         bombs = new Array<>();
         expolsions = new Array<>();
+        //addSolid(new Solid(this, new Rectangle(16,16,16,16)));
 
     }
 
@@ -195,6 +200,14 @@ public class PlayScreen implements Screen {
         bombs.removeValue(bomb, true);
     }
 
+    public Array<Solid> getSolids() {
+        return solids;
+    }
+
+    public void addSolid(Solid s) {
+        solids.add(s);
+    }
+
    public Vector2 getGridPosition(float x, float y) {
        return new Vector2(((int)x/16), ((int)y/16));
    }
@@ -206,4 +219,5 @@ public class PlayScreen implements Screen {
     public void destroyExplosion(Explosion explosion) {
         expolsions.removeValue(explosion, true);
     }
+
 }

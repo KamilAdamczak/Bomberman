@@ -42,6 +42,8 @@ public class Player extends Sprite {
     private Animation<TextureRegion> upRun;
     private float stateTimer;
 
+    public int power = 1;
+
     public Player(World world, PlayScreen screen) {
         super(screen.getAtlas().findRegion("player_down"));
         currentState = State.DOWN;

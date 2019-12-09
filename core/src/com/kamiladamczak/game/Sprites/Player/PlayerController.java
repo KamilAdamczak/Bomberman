@@ -2,6 +2,7 @@ package com.kamiladamczak.game.Sprites.Player;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Vector2;
 import com.kamiladamczak.game.Screens.PlayScreen;
 import com.kamiladamczak.game.Sprites.Bomb;
@@ -64,11 +65,11 @@ public class PlayerController {
             }
 
             if(canCreate) {
-                screen.newBomb(new Bomb(screen, player, playerPosition.x, playerPosition.y, 1));
+                screen.newBomb(new Bomb(screen, player, playerPosition.x, playerPosition.y, player.power));
             }
 
         }
-        //slowing down afret key release
+        //slowing down after key release
         if(!Gdx.input.isKeyPressed(Input.Keys.UP) && !Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
             if(Math.abs(player.b2body.getLinearVelocity().y) < 10) {
                 player.b2body.setLinearVelocity(player.b2body.getLinearVelocity().x, 0);
@@ -81,6 +82,10 @@ public class PlayerController {
             } else
                 player.b2body.setLinearVelocity(player.b2body.getLinearVelocity().x*player.STOPFACTOR, player.b2body.getLinearVelocity().y);
 
+        }
+
+        if(Gdx.input.isKeyJustPressed(Input.Keys.PLUS)) {
+            player.power++;
         }
     }
 }
