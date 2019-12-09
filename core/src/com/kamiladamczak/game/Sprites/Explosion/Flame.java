@@ -9,6 +9,7 @@ import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
@@ -17,14 +18,13 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.kamiladamczak.game.Bomberman;
 import com.kamiladamczak.game.Screens.PlayScreen;
+import com.kamiladamczak.game.Sprites.Bomb;
 import com.kamiladamczak.game.Sprites.Brick;
+import com.kamiladamczak.game.Sprites.InteractiveTileObject;
 import com.kamiladamczak.game.Sprites.Player.Player;
 import com.kamiladamczak.game.Sprites.Solid;
 
 public class Flame extends Sprite {
-    public void destroy() {
-        System.out.println("elo");
-    }
 
     public enum Direction {MIDDLE, M_DOWN, M_LEFT, M_UP, M_RIGHT, DOWN, LEFT, UP, RIGHT};
     private World world;
@@ -56,7 +56,7 @@ public class Flame extends Sprite {
         bdef.position.set(getX(),getY());
         bdef.type = BodyDef.BodyType.StaticBody;
         b2body = world.createBody(bdef);
-        shape.setRadius(8);
+        shape.setRadius(1);
         fdef.filter.categoryBits = Bomberman.DAMAGE_BIT;
         fdef.shape = shape;
         b2body.createFixture(fdef).setUserData("flames");
@@ -64,8 +64,19 @@ public class Flame extends Sprite {
         TiledMap map = screen.getMap();
         for(MapObject object: map.getLayers().get(3).getObjects().getByType(RectangleMapObject.class)) {
             Rectangle rect = ((RectangleMapObject) object).getRectangle();
-            if (Intersector.overlaps(rect, this.getBoundingRectangle())) {
-                //Brick.class.isAssignableFrom(rec)
+            Rectangle pRect = new Rectangle(this.getX()-8, this.getY()-8, 16, 16);
+            if (Intersector.overlaps(rect, pRect)) {
+                for(Brick b:screen.getBricks()) {
+                    if(b.getPosition().x == rect.getX() && b.getPosition().y == rect.getY()) {
+                        b.destroy();
+                    }
+                }
+            }
+        }
+
+        for(int i=0; i <screen.getBombs().size; i++) {
+            if(Intersector.overlaps(screen.getBombs().get(i).getBoundingRectangle(), this.getBoundingRectangle())){
+                screen.getBombs().get(i).otherDetonate();
             }
         }
     }

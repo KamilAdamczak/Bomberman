@@ -29,7 +29,7 @@ public class B2WorldCreator {
         //create solid bodies/fixtures
         for(MapObject object: map.getLayers().get(2).getObjects().getByType(RectangleMapObject.class)) {
             Rectangle rect = ((RectangleMapObject) object).getRectangle();
-            screen.addSolid(new Solid(screen, rect));
+            new Solid(screen, rect);
             //System.out.println(body.getPosition());
         }
         //create brick  bodies/fixtures
@@ -37,7 +37,7 @@ public class B2WorldCreator {
             Rectangle rect = ((RectangleMapObject) object).getRectangle();
 
 
-            new Brick(screen, rect);
+            screen.addBrick(new Brick(screen, rect));
 //            bdef.type = BodyDef.BodyType.StaticBody;
 //            bdef.position.set((rect.getX() + rect.getWidth()/2), (rect.getY()+rect.getHeight()/2));
 //

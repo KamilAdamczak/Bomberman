@@ -10,7 +10,6 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
@@ -20,7 +19,9 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.kamiladamczak.game.Bomberman;
 import com.kamiladamczak.game.Scenes.Hud;
 import com.kamiladamczak.game.Sprites.Bomb;
+import com.kamiladamczak.game.Sprites.Brick;
 import com.kamiladamczak.game.Sprites.Explosion.Explosion;
+import com.kamiladamczak.game.Sprites.Explosion.Flame;
 import com.kamiladamczak.game.Sprites.Player.Player;
 import com.kamiladamczak.game.Sprites.Player.PlayerController;
 import com.kamiladamczak.game.Sprites.Solid;
@@ -44,10 +45,11 @@ public class PlayScreen implements Screen {
     public TiledMap map;
     private OrthogonalTiledMapRenderer renderer;
 
-    private Array<Bomb> bombs;
-    private Array<Explosion> expolsions;
+    private Array<Bomb> bombs = new Array<>();
 
-    private Array<Solid> solids= new Array<>();;
+    private Array<Explosion> expolsions = new Array<>();
+
+    private Array<Brick> bricks = new Array<>();;
 
     //Box2D variables
     private World world;
@@ -88,10 +90,6 @@ public class PlayScreen implements Screen {
         player = new Player(world, this);
         pcon = new PlayerController(player, this);
         world.setContactListener(new WorldContactListener());
-        bombs = new Array<>();
-        expolsions = new Array<>();
-        //addSolid(new Solid(this, new Rectangle(16,16,16,16)));
-
     }
 
     public TextureAtlas getAtlas() {
@@ -200,12 +198,12 @@ public class PlayScreen implements Screen {
         bombs.removeValue(bomb, true);
     }
 
-    public Array<Solid> getSolids() {
-        return solids;
+    public Array<Brick> getBricks() {
+        return bricks;
     }
 
-    public void addSolid(Solid s) {
-        solids.add(s);
+    public void addBrick(Brick b) {
+        bricks.add(b);
     }
 
    public Vector2 getGridPosition(float x, float y) {
@@ -220,4 +218,7 @@ public class PlayScreen implements Screen {
         expolsions.removeValue(explosion, true);
     }
 
+    public Array<Explosion> getExpolsion() {
+        return expolsions;
+    }
 }

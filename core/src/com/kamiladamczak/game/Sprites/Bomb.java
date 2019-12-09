@@ -15,6 +15,7 @@ import com.badlogic.gdx.utils.Array;
 import com.kamiladamczak.game.Bomberman;
 import com.kamiladamczak.game.Screens.PlayScreen;
 import com.kamiladamczak.game.Sprites.Explosion.Explosion;
+import com.kamiladamczak.game.Sprites.Explosion.Flame;
 import com.kamiladamczak.game.Sprites.Player.Player;
 
 
@@ -80,13 +81,11 @@ public class Bomb extends Sprite {
         setRegion(bombAnimation.getKeyFrame(stateTime, true));
 
         if(detonationTime >= 3f) {
-            this.boom();
-            screen.newExplosion(new Explosion(screen, player, this, power));
+            detonate();
         }
     }
 
     private void boom() {
-        System.out.println("BOOM!");
         world.destroyBody(b2body);
         screen.destroyBomb(this);
     }
@@ -100,5 +99,14 @@ public class Bomb extends Sprite {
         fdef.filter.categoryBits = Bomberman.DESTORYED_BIT;
         fdef.shape = shape;
         b2body.createFixture(fdef).setUserData("bomb");
+    }
+
+    public void detonate() {
+        this.boom();
+        screen.newExplosion(new Explosion(screen, player, this, power));
+    }
+
+    public void otherDetonate() {
+        detonationTime+= 1.5f;
     }
 }

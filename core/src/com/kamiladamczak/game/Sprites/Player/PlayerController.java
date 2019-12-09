@@ -86,6 +86,7 @@ public class PlayerController {
 
         if(Gdx.input.isKeyJustPressed(Input.Keys.PLUS)) {
             player.power++;
+            System.out.println(player.power);
         }
     }
 }

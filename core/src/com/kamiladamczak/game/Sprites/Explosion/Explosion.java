@@ -112,7 +112,6 @@ public class Explosion {
                 flames.add(new Flame(screen, player, this, x-16*i, y, Flame.Direction.M_LEFT));
         }
 
-        System.out.println("new fire from:"+player+" of power: "+power);
     }
 
     public void update(float dt) {
@@ -131,4 +130,7 @@ public class Explosion {
         flames.removeValue(flame, true);
     }
 
+    public Array<Flame> getFlames() {
+        return flames;
+    }
 }
