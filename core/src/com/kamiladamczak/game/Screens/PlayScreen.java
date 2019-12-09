@@ -51,7 +51,7 @@ public class PlayScreen implements Screen {
     private Player player;
     private PlayerController pcon;
 
-
+    private boolean deboug = false;
     public PlayScreen(Bomberman game) {
         this.game = game;
     }
@@ -93,6 +93,9 @@ public class PlayScreen implements Screen {
 
     public void handleInput(float dt) {
 
+        if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE))
+            deboug = !deboug;
+
         pcon.update(dt);
 
     }
@@ -100,7 +103,7 @@ public class PlayScreen implements Screen {
 
     public void update(float dt) {
         handleInput(dt);
-       world.step(1/60f, 1,2);
+       world.step(1/60f, 0,0);
         hud.update(dt);
         player.update(dt);
         for(Bomb bomb:bombs) {
@@ -119,6 +122,7 @@ public class PlayScreen implements Screen {
 
         renderer.render();
 
+        if(deboug)
         b2dr.render(world, gamecam.combined);
         game.batch.setProjectionMatrix(gamecam.combined);
         game.batch.begin();
@@ -177,4 +181,12 @@ public class PlayScreen implements Screen {
     public Array<Bomb> getBombs() {
         return bombs;
     }
+
+    public void destroyBomb(Bomb bomb) {
+        bombs.removeValue(bomb, true);
+    }
+
+   public Vector2 getGridPosition(float x, float y) {
+       return new Vector2(((int)x/16), ((int)y/16));
+   }
 }

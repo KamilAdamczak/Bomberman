@@ -19,7 +19,6 @@ public class WorldContactListener implements ContactListener {
             Fixture bomb = fixA.getUserData() == "bomb" ? fixA: fixB;
             Fixture object = bomb == fixA ? fixB : fixA;
 
-            System.out.println("test");
 
         }
 

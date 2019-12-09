@@ -6,8 +6,6 @@ import com.badlogic.gdx.math.Vector2;
 import com.kamiladamczak.game.Screens.PlayScreen;
 import com.kamiladamczak.game.Sprites.Bomb;
 
-import static com.badlogic.gdx.math.MathUtils.round;
-
 public class PlayerController {
     private Player player;
     private PlayScreen screen;
@@ -17,6 +15,19 @@ public class PlayerController {
     }
 
     public void update(float dt) {
+
+        if(Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
+            player.b2body.setLinearVelocity(new Vector2(player.b2body.getLinearVelocity().x,0f));
+        }
+        if(Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) {
+            player.b2body.setLinearVelocity(new Vector2(player.b2body.getLinearVelocity().x,0f));
+        }
+        if(Gdx.input.isKeyJustPressed(Input.Keys.LEFT)) {
+            player.b2body.setLinearVelocity(new Vector2(0f,player.b2body.getLinearVelocity().y));
+        }
+        if(Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)) {
+            player.b2body.setLinearVelocity(new Vector2(0f,player.b2body.getLinearVelocity().y));
+        }
 
         if(Gdx.input.isKeyPressed(Input.Keys.UP) && player.b2body.getLinearVelocity().y <= Player.MAXSPEED) {
             player.b2body.applyLinearImpulse(new Vector2(0, 4f), player.b2body.getWorldCenter(), true);
@@ -37,21 +48,23 @@ public class PlayerController {
 
         if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
             //Put a bomb
+            Vector2 playerPosition = screen.getGridPosition(player.b2body.getPosition().x, player.b2body.getPosition().y);
             boolean canCreate = false;
             if(screen.getBombs().isEmpty()) {
                 canCreate = true;
             } else {
                 for (Bomb bomb : screen.getBombs()) {
-                    if (bomb.getX() != round(player.b2body.getPosition().x/16)*16-16 || bomb.getY() != round(player.b2body.getPosition().y/16)*16-16) {
-                        canCreate = true;
-                    } else {
+                    if ((int)bomb.getX() == playerPosition.x*16 && (int)bomb.getY() == playerPosition.y*16) {
                         canCreate = false;
+                        break;
+                    } else {
+                        canCreate = true;
                     }
                 }
             }
 
             if(canCreate) {
-                screen.newBomb(new Bomb(screen, round(player.b2body.getPosition().x), round(player.b2body.getPosition().y), 1));
+                screen.newBomb(new Bomb(screen, player, playerPosition.x, playerPosition.y, 1));
             }
 
         }
