@@ -1,30 +1,28 @@
 package com.kamiladamczak.game.Sprites.Player;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Intersector;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
-import com.badlogic.gdx.physics.box2d.EdgeShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.kamiladamczak.game.Bomberman;
 import com.kamiladamczak.game.Screens.PlayScreen;
-import com.kamiladamczak.game.Sprites.Bomb;
 import com.kamiladamczak.game.Sprites.Explosion.Explosion;
 import com.kamiladamczak.game.Sprites.Explosion.Flame;
+import com.kamiladamczak.game.Sprites.PowerUp;
 
-import static com.badlogic.gdx.math.MathUtils.round;
 
 public class Player extends Sprite {
     public final static float STOPFACTOR = .00f;
     public final static float MAXSPEED = 80f;
+
 
     public enum State {DOWN, LEFT, UP, RIGHT, STOP, DEATH};
     public State currentState;
@@ -101,6 +99,13 @@ public class Player extends Sprite {
         setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight()/2);
         setRegion(getFrame(dt));
 
+        for(PowerUp powerUp:screen.getPowerUp()) {
+            if(Intersector.overlaps(getBoundingRectangle(), new Rectangle(powerUp.getX()+8, powerUp.getY()+8, 8,8))) {
+                addPower(powerUp.getType());
+                powerUp.destory();
+            }
+        }
+
         if(blink) {
             blinkTimer += dt;
             invincible = true;
@@ -137,7 +142,22 @@ public class Player extends Sprite {
 
     }
 
+    private void addPower(PowerUp.TYPE type) {
+        switch (type) {
+            case BOMB:
+                bombs++;
+                System.out.println("bombs++");
+                break;
+            case POWER:
+                power++;
+                System.out.println("power++");
+                break;
+        }
+    }
+
+
     public void kill() {
+        b2body.setLinearVelocity(new Vector2(0,0));
         lives--;
         currentState = State.DEATH;
     }
@@ -231,10 +251,9 @@ public class Player extends Sprite {
         CircleShape shape = new CircleShape();
         shape.setRadius(7.5f);
         fdef.filter.categoryBits = Bomberman.PLAYER_BIT;
-        fdef.filter.maskBits = Bomberman.SOLID_BIT | Bomberman.POWERUP_BIT |Bomberman.BRICK_BIT;
+        fdef.filter.maskBits = Bomberman.SOLID_BIT | Bomberman.BRICK_BIT;
 
         fdef.shape = shape;
         b2body.createFixture(fdef).setUserData("player");
-
     }
 }

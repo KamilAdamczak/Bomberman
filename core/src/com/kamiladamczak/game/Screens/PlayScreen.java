@@ -24,6 +24,7 @@ import com.kamiladamczak.game.Sprites.Explosion.Explosion;
 import com.kamiladamczak.game.Sprites.Explosion.Flame;
 import com.kamiladamczak.game.Sprites.Player.Player;
 import com.kamiladamczak.game.Sprites.Player.PlayerController;
+import com.kamiladamczak.game.Sprites.PowerUp;
 import com.kamiladamczak.game.Sprites.Solid;
 import com.kamiladamczak.game.Tools.B2WorldCreator;
 import com.kamiladamczak.game.Tools.WorldContactListener;
@@ -50,6 +51,8 @@ public class PlayScreen implements Screen {
     private Array<Explosion> expolsions = new Array<>();
 
     private Array<Brick> bricks = new Array<>();;
+
+    private Array<PowerUp> powerUps = new Array<>();
 
     //Box2D variables
     private World world;
@@ -135,14 +138,21 @@ public class PlayScreen implements Screen {
         b2dr.render(world, gamecam.combined);
         game.batch.setProjectionMatrix(gamecam.combined);
         game.batch.begin();
-        player.draw(game.batch);
 
         for(Bomb bomb:bombs) {
             bomb.draw(game.batch);
         }
+
+        for(PowerUp powerUp: powerUps) {
+            powerUp.draw(game.batch);
+        }
+
         for(Explosion exposion:expolsions) {
             exposion.draw(game.batch);
         }
+
+        player.draw(game.batch);
+
         game.batch.end();
         game.batch.setProjectionMatrix(hud.stage.getCamera().combined);
         //hud.stage.draw();
@@ -220,5 +230,17 @@ public class PlayScreen implements Screen {
 
     public Array<Explosion> getExpolsion() {
         return expolsions;
+    }
+
+    public Array<PowerUp> getPowerUp() {
+        return powerUps;
+    }
+
+    public void addPowerUp(PowerUp powerUp) {
+        powerUps.add(powerUp);
+    }
+
+    public void removePowerUp(PowerUp powerUp) {
+        powerUps.removeValue(powerUp, true);
     }
 }

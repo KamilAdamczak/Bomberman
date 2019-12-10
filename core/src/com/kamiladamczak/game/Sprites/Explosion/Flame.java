@@ -68,6 +68,7 @@ public class Flame extends Sprite {
             if (Intersector.overlaps(rect, pRect)) {
                 for(Brick b:screen.getBricks()) {
                     if(b.getPosition().x == rect.getX() && b.getPosition().y == rect.getY()) {
+                        if(!b.isDestroyed)
                         b.destroy();
                     }
                 }

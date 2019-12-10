@@ -85,15 +85,7 @@ public class PlayerController {
                     player.b2body.setLinearVelocity(player.b2body.getLinearVelocity().x * player.STOPFACTOR, player.b2body.getLinearVelocity().y);
 
             }
-
-            if (Gdx.input.isKeyJustPressed(Input.Keys.PLUS)) {
-                player.power++;
-                System.out.println(player.power);
-            }
         }
 
-        if(Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
-            player.kill();
-        }
     }
 }
