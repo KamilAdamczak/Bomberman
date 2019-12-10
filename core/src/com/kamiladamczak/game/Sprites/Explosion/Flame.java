@@ -56,7 +56,7 @@ public class Flame extends Sprite {
         bdef.position.set(getX(),getY());
         bdef.type = BodyDef.BodyType.StaticBody;
         b2body = world.createBody(bdef);
-        shape.setRadius(1);
+        shape.setRadius(8);
         fdef.filter.categoryBits = Bomberman.DAMAGE_BIT;
         fdef.shape = shape;
         b2body.createFixture(fdef).setUserData("flames");

@@ -77,7 +77,7 @@ public class PlayScreen implements Screen {
 
         //Load our map and setup our map renderer
         maploader = new TmxMapLoader();
-        map = maploader.load("level.tmx");
+        map = maploader.load("level1.tmx");
         renderer = new OrthogonalTiledMapRenderer(map);
 
         //initially set our gamecam to be centered correctly at the start of map

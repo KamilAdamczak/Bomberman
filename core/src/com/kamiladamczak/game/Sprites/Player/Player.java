@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -16,6 +17,8 @@ import com.badlogic.gdx.utils.Array;
 import com.kamiladamczak.game.Bomberman;
 import com.kamiladamczak.game.Screens.PlayScreen;
 import com.kamiladamczak.game.Sprites.Bomb;
+import com.kamiladamczak.game.Sprites.Explosion.Explosion;
+import com.kamiladamczak.game.Sprites.Explosion.Flame;
 
 import static com.badlogic.gdx.math.MathUtils.round;
 
@@ -23,10 +26,9 @@ public class Player extends Sprite {
     public final static float STOPFACTOR = .00f;
     public final static float MAXSPEED = 80f;
 
-    public enum State {DOWN, LEFT, UP, RIGHT, STOP};
+    public enum State {DOWN, LEFT, UP, RIGHT, STOP, DEATH};
     public State currentState;
     public State previousState;
-    public State stopState = State.STOP;
 
     public enum Direction {DOWN, LEFT, UP, RIGHT};
     public Direction dir;
@@ -40,15 +42,29 @@ public class Player extends Sprite {
     private Animation<TextureRegion> horiRun;
     private Animation<TextureRegion> downRun;
     private Animation<TextureRegion> upRun;
+    private Animation<TextureRegion> death;
     private float stateTimer;
+    private boolean blink;
+    private boolean visiable;
+    private float vTimer;
+    private float blinkTimer;
+    private boolean invincible = false;
+
+    private PlayScreen screen;
 
     public int power = 1;
+    public int bombs = 1;
+    public int lives = 3;
 
     public Player(World world, PlayScreen screen) {
         super(screen.getAtlas().findRegion("player_down"));
+        this.screen = screen;
         currentState = State.DOWN;
         previousState = State.DOWN;
-        stateTimer = 0;
+        blink = false;
+        visiable = true;
+        stateTimer = vTimer =  blinkTimer = 0;
+
         Array<TextureRegion> frames = new Array<TextureRegion>();
         for(int i=0; i<3; i++)
             frames.add(new TextureRegion(getTexture(), 401+i*16,33,14,16));
@@ -63,6 +79,12 @@ public class Player extends Sprite {
         upRun = new Animation(.1f, frames);
         frames.clear();
 
+        for(int i=0; i<7;i++)
+            frames.add(new TextureRegion(getTexture(), 109+i*16, 33, 16,16));
+        death = new Animation(.2f,frames);
+        frames.clear();
+
+
         this.world = world;
         definePlayer();
 
@@ -75,17 +97,68 @@ public class Player extends Sprite {
     }
 
     public void update(float dt) {
+        vTimer += dt;
         setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight()/2);
         setRegion(getFrame(dt));
 
+        if(blink) {
+            blinkTimer += dt;
+            invincible = true;
+            if(vTimer >= .1) {
+                visiable = !visiable;
+                vTimer = 0;
+            }
+            if(blinkTimer>2) {
+                invincible = false;
+                blink = false;
+                visiable = true;
+                blinkTimer = 0;
+            }
+        }
+
+        if(visiable)
+            setAlpha(1);
+         else
+            setAlpha(0);
+
+        if(currentState.equals(State.DEATH) && death.isAnimationFinished(stateTimer)) {
+            respawn();
+        }
+
+
+        for(Explosion e: screen.getExpolsion()) {
+            for(Flame f: e.getFlames()) {
+                if(Intersector.overlaps(getBoundingRectangle(), f.getBoundingRectangle())) {
+                    if(!invincible)
+                        kill();
+                }
+            }
+        }
+
     }
+
+    public void kill() {
+        lives--;
+        currentState = State.DEATH;
+    }
+
+    private void respawn() {
+        currentState = State.STOP;
+        b2body.setTransform(24,216,0);
+        blink = true;
+    }
+
     public TextureRegion getFrame(float dt) {
         currentState = getState();
 
         TextureRegion region;
         switch (currentState) {
+            case DEATH:
+                region = death.getKeyFrame(stateTimer, false);
+                break;
             case DOWN:
                 region = downRun.getKeyFrame(stateTimer, true);
+
                 break;
             case LEFT:
                 region = horiRun.getKeyFrame(stateTimer, true);
@@ -129,6 +202,9 @@ public class Player extends Sprite {
     }
 
     public State getState() {
+        if(currentState.equals(State.DEATH))
+            return State.DEATH;
+
         if(b2body.getLinearVelocity().y < 0)
             return State.UP;
             //if negative in Y-Axis mario is falling
@@ -142,6 +218,7 @@ public class Player extends Sprite {
             //if none of these return then he must be standing
         else
             return State.STOP;
+
     }
 
     private void definePlayer() {
@@ -152,7 +229,7 @@ public class Player extends Sprite {
 
         FixtureDef fdef = new FixtureDef();
         CircleShape shape = new CircleShape();
-        shape.setRadius(8);
+        shape.setRadius(7.5f);
         fdef.filter.categoryBits = Bomberman.PLAYER_BIT;
         fdef.filter.maskBits = Bomberman.SOLID_BIT | Bomberman.POWERUP_BIT |Bomberman.BRICK_BIT;
 
