@@ -19,7 +19,6 @@ import com.kamiladamczak.game.Screens.PlayScreen;
 public class Solid extends Sprite {
     protected World world;
     protected TiledMap map;
-    protected TiledMapTile tile;
     protected Rectangle bounds;
     protected Body body;
     protected Fixture fixture;
@@ -44,21 +43,13 @@ public class Solid extends Sprite {
         fixture.setUserData("Solid");
         setCategoryFilter(Bomberman.SOLID_BIT);
     }
+
+
     public void setCategoryFilter(short filterBit){
         Filter filter = new Filter();
         filter.categoryBits = filterBit;
         fixture.setFilterData(filter);
     }
 
-    public TiledMapTileLayer.Cell getCell(){
-        TiledMapTileLayer layer = (TiledMapTileLayer) map.getLayers().get(1);
-        return layer.getCell((int) (body.getPosition().x /16), (int)(body.getPosition().y/16));
-    }
-
-    public void Destoryed() {
-        Gdx.app.log("Brick", "Collision");
-        setCategoryFilter(Bomberman.DESTROYED_BIT);
-        getCell().setTile(null);
-    }
 
 }

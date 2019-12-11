@@ -19,6 +19,7 @@ public class WorldContactListener implements ContactListener {
         int cDef = fixA.getFilterData().categoryBits | fixB.getFilterData().categoryBits;
 
         switch (cDef) {
+            //check for contact between player and enemy, if it will occurs call player kill() function
             case Bomberman.ENEMY_BIT | Bomberman.PLAYER_BIT:
                 if (fixA.getFilterData().categoryBits == Bomberman.PLAYER_BIT) {
                         if (!((Player) fixA.getUserData()).invincible)
@@ -28,6 +29,7 @@ public class WorldContactListener implements ContactListener {
                             ((Player) fixB.getUserData()).kill();
                 }
                 break;
+            //check for contact between enemy and bomb/solid/brick, if it will occurs switch enemy movement direction
             case Bomberman.ENEMY_BIT | Bomberman.BOMB_BIT:
             case Bomberman.ENEMY_BIT | Bomberman.SOLID_BIT:
             case Bomberman.ENEMY_BIT | Bomberman.BRICK_BIT:

@@ -13,32 +13,33 @@ public abstract class Enemy extends Sprite {
     public Body b2body;
     public Vector2 velocity;
 
+    //Enemy definition gets screen, x.y for position and dir for movement type
     public Enemy(PlayScreen screen, float x, float y, String dir) {
         this.world = screen.getWorld();
         this.screen = screen;
         setPosition(x, y);
         defineEnemy();
         switch (dir) {
+            //setting up horizontal movement for enemy
             case "H":
                 velocity = new Vector2(30, 0);
                 break;
+            //setting up vertical movement for enemy
             case "V":
                 velocity = new Vector2(0, 30);
                 break;
         }
-        b2body.setActive(true);
     }
 
     protected abstract void defineEnemy();
 
     public abstract void onHitByFire(Player player);
 
+    //make enemy go into reversed direction after hitting obstacle
     public void reverseVelocity(boolean x, boolean y) {
-        if(x) {
+        if(x)
             velocity.x = -velocity.x;
-        }
-        if(y) {
+        if(y)
             velocity.y = -velocity.y;
-        }
     }
 }

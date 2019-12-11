@@ -16,7 +16,6 @@ import com.kamiladamczak.game.Screens.PlayScreen;
 
 public class Hud implements Disposable {
     public Stage stage;
-    private Viewport viewport;
 
     private static Integer score;
     private static Integer lives;
@@ -34,7 +33,7 @@ public class Hud implements Disposable {
         bombs = 0;
         power = 0;
 
-        viewport = new FitViewport(Bomberman.WIDTH,Bomberman.HEIGHT, new OrthographicCamera());
+        Viewport viewport = new FitViewport(Bomberman.WIDTH,Bomberman.HEIGHT, new OrthographicCamera());
         stage = new Stage(viewport, sb);
 
         Table table = new Table();
@@ -49,13 +48,10 @@ public class Hud implements Disposable {
         livesLabel = new Label(String.format("LIVES: %d", lives), new Label.LabelStyle(myFont, Color.RED));
         bombsLabel = new Label(String.format("BOMBS: %d", bombs), new Label.LabelStyle(myFont, Color.RED));
         powerLabel = new Label(String.format("POWER: %d", power), new Label.LabelStyle(myFont, Color.RED));
-        //table.align(Align.top | Align.left);
         table.add(livesLabel).padLeft(10).padTop(2);
         table.add(bombsLabel).padLeft(10).padTop(2);
         table.add(powerLabel).padLeft(10).padTop(2);
         table.add(scoreLabel).padLeft(10).padTop(2);
-
-
 
         stage.addActor(table);
     }

@@ -5,8 +5,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.kamiladamczak.game.Screens.PlayScreen;
 
 public class Bomberman extends Game {
-
-
 	public static final int CELLSIZE = 16;
 	public static final int ROWS = 19;
 	public static final int COLS = 15;

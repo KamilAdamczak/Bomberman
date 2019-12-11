@@ -6,21 +6,21 @@ import com.kamiladamczak.game.Screens.PlayScreen;
 
 
 public class PowerUp extends Sprite{
-    //private World world;
     private PlayScreen screen;
 
-    public enum TYPE {BOMB, POWER};
+    public enum TYPE {BOMB, POWER}
     private TYPE type;
-
 
     private TextureRegion sprite;
 
     public PowerUp(PlayScreen screen, float x, float y, TYPE type) {
         this.screen = screen;
         this.type = type;
-        setPosition(x+8,y+8);
-        switch (type) {
 
+        setPosition(x+8,y+8);
+
+        //set sprite depending of it type
+        switch (type) {
             case BOMB:
                 sprite = new TextureRegion(screen.getAtlas().findRegion("power_ups"),0,0,16,16);
                 break;
@@ -32,11 +32,12 @@ public class PowerUp extends Sprite{
         setBounds(x,y,16,16);
     }
 
-
+    //return this powerup type
     public TYPE getType() {
         return type;
     }
 
+    //remove this powerUp instance from entity manager powerup array
     public void destroy() {
         screen.entityManager.removePowerUp(this);
     }

@@ -21,8 +21,8 @@ import com.kamiladamczak.game.Tools.EntityManager;
 import com.kamiladamczak.game.Tools.WorldContactListener;
 
 public class PlayScreen implements Screen {
-    //
     private TextureAtlas atlas;
+
     private Bomberman game;
 
     //Camera
@@ -36,14 +36,17 @@ public class PlayScreen implements Screen {
     public TiledMap map;
     private OrthogonalTiledMapRenderer renderer;
 
-
     //Box2D variables
     private World world;
     private Box2DDebugRenderer b2dr;
 
+    //Some flag for turning on and off box2d debug renderer
+    private boolean debug = false;
+
+    //Create EntityManager
     public EntityManager entityManager;
 
-    private boolean debug = false;
+
     public PlayScreen(Bomberman game) {
         this.game = game;
     }
@@ -57,7 +60,7 @@ public class PlayScreen implements Screen {
         //create a FitViewport to maintain virutal aspect ratio despite screen size
         gamePort = new FitViewport(Bomberman.WIDTH, Bomberman.HEIGHT, gamecam);
 
-        //create ouor game HUD for scores/timers/level info
+        //create our game HUD for scores/timers/level info
         hud = new Hud(game.batch);
 
         //Load our map and setup our map renderer
@@ -68,11 +71,17 @@ public class PlayScreen implements Screen {
         //initially set our gamecam to be centered correctly at the start of map
         gamecam.position.set(gamePort.getWorldWidth()/2, gamePort.getWorldHeight()/2, 0);
 
+        //Create B2d Word, and set up B2d Debug Renderer
         world = new World(new Vector2(0, 0), true);
         b2dr = new Box2DDebugRenderer();
+
+        //Create Instance of EntityManager
         entityManager = new EntityManager(world, this);
+
+        //Create Instance of B2WorldCreator to create fixtures for our TiledMap
         new B2WorldCreator(this);
 
+        //Setup ContactListener
         world.setContactListener(new WorldContactListener());
     }
 
@@ -81,6 +90,7 @@ public class PlayScreen implements Screen {
     }
 
     public void handleInput(float dt) {
+        //Escape switch flag for our B2d debug renderer
         if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE))
             debug = !debug;
     }
@@ -107,11 +117,11 @@ public class PlayScreen implements Screen {
         b2dr.render(world, gamecam.combined);
 
         game.batch.setProjectionMatrix(gamecam.combined);
+
         game.batch.begin();
-
         entityManager.draw(game.batch);
-
         game.batch.end();
+
         game.batch.setProjectionMatrix(hud.stage.getCamera().combined);
         hud.stage.draw();
     }
@@ -151,10 +161,5 @@ public class PlayScreen implements Screen {
 
     public TiledMap getMap() {
         return map;
-    }
-
-
-    public Vector2 getGridPosition(float x, float y) {
-        return new Vector2(((int)x/16), ((int)y/16));
     }
 }

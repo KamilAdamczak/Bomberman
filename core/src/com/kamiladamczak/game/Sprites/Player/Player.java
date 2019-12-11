@@ -25,16 +25,18 @@ public class Player extends Sprite {
     public final static float MAXSPEED = 80f;
 
 
-    public enum State {DOWN, LEFT, UP, RIGHT, STOP, DEATH};
+
+    public World world;
+    private PlayScreen screen;
+
+    public  Body b2body;
+
+    public enum State {DOWN, LEFT, UP, RIGHT, STOP, DEATH}
     private State currentState;
     private State previousState;
 
-    public enum Direction {DOWN, LEFT, UP, RIGHT};
+    public enum Direction {DOWN, LEFT, UP, RIGHT}
     public Direction dir;
-
-    public World world;
-
-    public  Body b2body;
 
     private TextureRegion horiStand;
     private TextureRegion downStand;
@@ -51,8 +53,6 @@ public class Player extends Sprite {
 
     public boolean invincible = false;
 
-    private PlayScreen screen;
-
     public int power = 1;
     public int bombs = 1;
     public int lives = 3;
@@ -61,10 +61,13 @@ public class Player extends Sprite {
     public Player(World world, PlayScreen screen) {
         super(screen.getAtlas().findRegion("player_down"));
         this.screen = screen;
+        //setting up simple state machine
         currentState = State.DOWN;
-        previousState = State.DOWN;
+        previousState = currentState;
+
         blink = false;
         visible = true;
+
         stateTimer = vTimer =  blinkTimer = 0;
 
         Array<TextureRegion> frames = new Array<TextureRegion>();
@@ -86,13 +89,12 @@ public class Player extends Sprite {
         death = new Animation(.2f,frames);
         frames.clear();
 
-
-        this.world = world;
-        definePlayer();
-
         downStand = new TextureRegion(screen.getAtlas().findRegion("player_down"), 15,0,14,16);
         upStand = new TextureRegion(screen.getAtlas().findRegion("player_up"), 15,0,14,16);
         horiStand = new TextureRegion(screen.getAtlas().findRegion("player_side"), 15,0,14,16);
+
+        this.world = world;
+        definePlayer();
         setBounds(0,0, 16,16);
         setRegion(upStand);
         dir = Direction.DOWN;
@@ -103,13 +105,25 @@ public class Player extends Sprite {
         setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight()/2);
         setRegion(getFrame(dt));
 
+        //check for collision with power up
         for(PowerUp powerUp:screen.entityManager.getPowerUps()) {
             if(Intersector.overlaps(getBoundingRectangle(), new Rectangle(powerUp.getX()+4, powerUp.getY()+4, 8,8))) {
-                addPower(powerUp.getType());
-                powerUp.destroy();
+                addPower(powerUp.getType()); //add power base on collided powerUp type
+                powerUp.destroy(); //destroy collided powerUp
             }
         }
 
+        //check for collision with flames
+        for(Explosion e: screen.entityManager.getExplosions()) {
+            for(Flame f: e.getFlames()) {
+                if(Intersector.overlaps(getBoundingRectangle(), new Rectangle(f.getX()+4, f.getY()+4, 8,8))) {
+                    if(!invincible && currentState != State.DEATH)
+                        kill(); //if player collide with flame call kill() function
+                }
+            }
+        }
+
+        //blink after respawn
         if(blink) {
             blinkTimer += dt;
             invincible = true;
@@ -130,21 +144,12 @@ public class Player extends Sprite {
          else
             setAlpha(0);
 
-        if(currentState.equals(State.DEATH) && death.isAnimationFinished(stateTimer)) {
+        //if death animation has ended, and player state is dead, respawn player
+        if(currentState.equals(State.DEATH) && death.isAnimationFinished(stateTimer))
             respawn();
-        }
-
-        for(Explosion e: screen.entityManager.getExplosions()) {
-            for(Flame f: e.getFlames()) {
-                if(Intersector.overlaps(getBoundingRectangle(), new Rectangle(f.getX()+4, f.getY()+4, 8,8))) {
-                    if(!invincible && currentState != State.DEATH)
-                        kill();
-                }
-            }
-        }
-
     }
 
+    //powerup add power u know what it does
     private void addPower(PowerUp.TYPE type) {
         switch (type) {
             case BOMB:
@@ -156,18 +161,19 @@ public class Player extends Sprite {
         }
     }
 
-
+    //if player respawn, set position as upper left corner, activate blinking,
+    // change maskbit back as it was so player can collide with other objects
     private void respawn() {
         currentState = State.STOP;
         b2body.setTransform(24,216,0);
         blink = true;
-        b2body.setActive(true);
         Filter f = new Filter();
         f.maskBits = Bomberman.SOLID_BIT | Bomberman.BRICK_BIT | Bomberman.ENEMY_BIT | Bomberman.BOMB_BIT;
         f.categoryBits = Bomberman.PLAYER_BIT;
         b2body.getFixtureList().first().setFilterData(f);
     }
 
+    //return frame base on current state
     private TextureRegion getFrame(float dt) {
         currentState = getState();
 
@@ -215,6 +221,7 @@ public class Player extends Sprite {
                 break;
         }
 
+        //if currentState change set stateTimer back to 0
         stateTimer = currentState == previousState ? stateTimer + dt : 0;
 
         previousState = currentState;
@@ -237,6 +244,7 @@ public class Player extends Sprite {
         b2body.createFixture(fdef).setUserData(this);
     }
 
+    //kill player, change it state to death, set linealVelocity to 0, so it can't move, change maskBits so it won't collide with other object;
     public void kill() {
         if(currentState != State.DEATH) {
             b2body.setLinearVelocity(new Vector2(0, 0));
@@ -248,6 +256,7 @@ public class Player extends Sprite {
         }
     }
 
+    //get player state base on velocity
     public State getState() {
         if(currentState.equals(State.DEATH))
             return State.DEATH;

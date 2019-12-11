@@ -28,7 +28,8 @@ public class EntityManager {
 
     public EntityManager(World world, PlayScreen screen) {
         player = new Player(world, screen);
-        pcon = new PlayerController(player, screen);
+        pcon = new PlayerController(screen, player);
+
         bombs = new Array<>();
         explosions = new Array<>();
         bricks = new Array<>();
@@ -74,7 +75,6 @@ public class EntityManager {
 
         player.draw(bt);
     }
-
 
     public Player getPlayer() {
         return player;
