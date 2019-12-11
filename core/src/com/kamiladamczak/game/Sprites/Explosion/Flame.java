@@ -22,6 +22,7 @@ import com.kamiladamczak.game.Sprites.Bomb;
 import com.kamiladamczak.game.Sprites.Brick;
 import com.kamiladamczak.game.Sprites.InteractiveTileObject;
 import com.kamiladamczak.game.Sprites.Player.Player;
+import com.kamiladamczak.game.Sprites.PowerUp;
 import com.kamiladamczak.game.Sprites.Solid;
 
 public class Flame extends Sprite {
@@ -29,6 +30,7 @@ public class Flame extends Sprite {
     public enum Direction {MIDDLE, M_DOWN, M_LEFT, M_UP, M_RIGHT, DOWN, LEFT, UP, RIGHT};
     private World world;
     private PlayScreen screen;
+
     private Player player;
     private Explosion explosion;
     private Body b2body;
@@ -76,7 +78,7 @@ public class Flame extends Sprite {
         }
 
         for(int i=0; i <screen.getBombs().size; i++) {
-            if(Intersector.overlaps(screen.getBombs().get(i).getBoundingRectangle(), this.getBoundingRectangle())){
+            if(Intersector.overlaps(screen.getBombs().get(i).getBoundingRectangle(), new Rectangle(getX(), getY(), 8,8))){
                 screen.getBombs().get(i).otherDetonate();
             }
         }
@@ -182,5 +184,9 @@ public class Flame extends Sprite {
                 setBounds(getX(), getY(), 16, 16);
                 break;
         }
+    }
+
+    public Player getPlayer() {
+        return player;
     }
 }

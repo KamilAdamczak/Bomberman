@@ -9,13 +9,10 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
-import com.kamiladamczak.game.Bomberman;
 import com.kamiladamczak.game.Screens.PlayScreen;
 import com.kamiladamczak.game.Sprites.Brick;
+import com.kamiladamczak.game.Sprites.Enemies.Slime;
 import com.kamiladamczak.game.Sprites.Solid;
-
-import java.awt.event.ContainerListener;
-import java.io.Console;
 
 public class B2WorldCreator {
     public B2WorldCreator(PlayScreen screen) {
@@ -30,24 +27,16 @@ public class B2WorldCreator {
         for(MapObject object: map.getLayers().get(2).getObjects().getByType(RectangleMapObject.class)) {
             Rectangle rect = ((RectangleMapObject) object).getRectangle();
             new Solid(screen, rect);
-            //System.out.println(body.getPosition());
         }
         //create brick  bodies/fixtures
         for(MapObject object: map.getLayers().get(3).getObjects().getByType(RectangleMapObject.class)) {
             Rectangle rect = ((RectangleMapObject) object).getRectangle();
-
-
             screen.addBrick(new Brick(screen, rect));
-//            bdef.type = BodyDef.BodyType.StaticBody;
-//            bdef.position.set((rect.getX() + rect.getWidth()/2), (rect.getY()+rect.getHeight()/2));
-//
-//            body = world.createBody(bdef);
-//
-//            shape.setAsBox(rect.getWidth()/2, rect.getHeight()/2);
-//            fdef.shape = shape;
-//
-//            fdef.filter.categoryBits = Bomberman.BRICK_BIT;
-//            body.createFixture(fdef);
+        }
+
+        for(MapObject object: map.getLayers().get(4).getObjects().getByType(RectangleMapObject.class)) {
+            Rectangle rect = ((RectangleMapObject) object).getRectangle();
+            screen.getSlimes().add(new Slime(screen, rect.getX()+8, rect.getY()+8, object.getName()));
         }
     }
 }

@@ -20,12 +20,11 @@ import com.kamiladamczak.game.Bomberman;
 import com.kamiladamczak.game.Scenes.Hud;
 import com.kamiladamczak.game.Sprites.Bomb;
 import com.kamiladamczak.game.Sprites.Brick;
+import com.kamiladamczak.game.Sprites.Enemies.Slime;
 import com.kamiladamczak.game.Sprites.Explosion.Explosion;
-import com.kamiladamczak.game.Sprites.Explosion.Flame;
 import com.kamiladamczak.game.Sprites.Player.Player;
 import com.kamiladamczak.game.Sprites.Player.PlayerController;
 import com.kamiladamczak.game.Sprites.PowerUp;
-import com.kamiladamczak.game.Sprites.Solid;
 import com.kamiladamczak.game.Tools.B2WorldCreator;
 import com.kamiladamczak.game.Tools.WorldContactListener;
 
@@ -54,12 +53,20 @@ public class PlayScreen implements Screen {
 
     private Array<PowerUp> powerUps = new Array<>();
 
+    private Array<Slime> slimes = new Array<>();
+
     //Box2D variables
     private World world;
     private Box2DDebugRenderer b2dr;
 
     private Player player;
     private PlayerController pcon;
+
+    public Player getPlayer() {
+        return player;
+    }
+
+
 
     private boolean deboug = false;
     public PlayScreen(Bomberman game) {
@@ -112,15 +119,17 @@ public class PlayScreen implements Screen {
     public void update(float dt) {
         handleInput(dt);
        world.step(1/60f, 0,2);
-        hud.update(dt);
+        hud.update(dt, this);
         player.update(dt);
-        for(Bomb bomb:bombs) {
+        for(Bomb bomb: bombs) {
             bomb.update(dt);
         }
-        for(Explosion expolsion:expolsions) {
+        for(Explosion expolsion: expolsions) {
             expolsion.update(dt);
         }
-
+        for(Slime slime: slimes) {
+            slime.update(dt);
+        }
         gamecam.update();
         renderer.setView(gamecam);
     }
@@ -151,11 +160,15 @@ public class PlayScreen implements Screen {
             exposion.draw(game.batch);
         }
 
+        for(Slime slime: slimes) {
+            slime.draw(game.batch);
+        }
+
         player.draw(game.batch);
 
         game.batch.end();
         game.batch.setProjectionMatrix(hud.stage.getCamera().combined);
-        //hud.stage.draw();
+        hud.stage.draw();
 
     }
 
@@ -196,14 +209,12 @@ public class PlayScreen implements Screen {
         return map;
     }
 
-    public void newBomb(Bomb bomb) {
-        bombs.add(bomb);
-    }
-
     public Array<Bomb> getBombs() {
         return bombs;
     }
-
+    public void newBomb(Bomb bomb) {
+        bombs.add(bomb);
+    }
     public void destroyBomb(Bomb bomb) {
         bombs.removeValue(bomb, true);
     }
@@ -211,36 +222,44 @@ public class PlayScreen implements Screen {
     public Array<Brick> getBricks() {
         return bricks;
     }
-
-    public void addBrick(Brick b) {
-        bricks.add(b);
+    public void addBrick(Brick brick) {
+        bricks.add(brick);
     }
+    public void removeBrick(Brick brick) {
+        bricks.removeValue(brick, true);
+    };
 
-   public Vector2 getGridPosition(float x, float y) {
-       return new Vector2(((int)x/16), ((int)y/16));
-   }
-
+    public Array<Explosion> getExpolsions() {
+        return expolsions;
+    }
     public void newExplosion(Explosion explosion) {
         expolsions.add(explosion);
     }
-
     public void destroyExplosion(Explosion explosion) {
         expolsions.removeValue(explosion, true);
     }
 
-    public Array<Explosion> getExpolsion() {
-        return expolsions;
-    }
-
-    public Array<PowerUp> getPowerUp() {
+    public Array<PowerUp> getPowerUps() {
         return powerUps;
     }
-
     public void addPowerUp(PowerUp powerUp) {
         powerUps.add(powerUp);
     }
-
     public void removePowerUp(PowerUp powerUp) {
         powerUps.removeValue(powerUp, true);
+    }
+
+    public Array<Slime> getSlimes() {
+        return slimes;
+    };
+    public void addSlime(Slime slime) {
+        slimes.add(slime);
+    }
+    public void removeSlime(Slime slime) {
+        slimes.removeValue(slime, true);
+    };
+
+    public Vector2 getGridPosition(float x, float y) {
+        return new Vector2(((int)x/16), ((int)y/16));
     }
 }

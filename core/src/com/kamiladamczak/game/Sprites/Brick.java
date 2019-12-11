@@ -2,6 +2,9 @@ package com.kamiladamczak.game.Sprites;
 
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.maps.MapObject;
+import com.badlogic.gdx.maps.objects.RectangleMapObject;
+import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 
@@ -34,11 +37,19 @@ public class Brick extends InteractiveTileObject{
         getCell().setTile(null);
         Random random = new Random();
         int r = random.nextInt(100);
-        if(r%5==0) {
+        if(r%6==0) {
             screen.addPowerUp(new PowerUp(screen, getPosition().x, getPosition().y, PowerUp.TYPE.BOMB));
-        } else if(r%10==0) {
+        } else if(r%8==0) {
             screen.addPowerUp(new PowerUp(screen, getPosition().x, getPosition().y, PowerUp.TYPE.POWER));
         }
+        for(MapObject object: map.getLayers().get(3).getObjects().getByType(RectangleMapObject.class)) {
+            Rectangle rect = ((RectangleMapObject) object).getRectangle();
+                if(rect == rectangle) {
+                    map.getLayers().get(3).getObjects().remove(object);
+            }
+        }
+
+        screen.removeBrick(this);
 
     }
 

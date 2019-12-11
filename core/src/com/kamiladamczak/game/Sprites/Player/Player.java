@@ -9,6 +9,8 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
+import com.badlogic.gdx.physics.box2d.Filter;
+import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
@@ -17,6 +19,8 @@ import com.kamiladamczak.game.Screens.PlayScreen;
 import com.kamiladamczak.game.Sprites.Explosion.Explosion;
 import com.kamiladamczak.game.Sprites.Explosion.Flame;
 import com.kamiladamczak.game.Sprites.PowerUp;
+
+import java.util.ArrayList;
 
 
 public class Player extends Sprite {
@@ -46,13 +50,15 @@ public class Player extends Sprite {
     private boolean visiable;
     private float vTimer;
     private float blinkTimer;
-    private boolean invincible = false;
+
+    public boolean invincible = false;
 
     private PlayScreen screen;
 
     public int power = 1;
     public int bombs = 1;
     public int lives = 3;
+    public int score = 0;
 
     public Player(World world, PlayScreen screen) {
         super(screen.getAtlas().findRegion("player_down"));
@@ -99,10 +105,10 @@ public class Player extends Sprite {
         setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight()/2);
         setRegion(getFrame(dt));
 
-        for(PowerUp powerUp:screen.getPowerUp()) {
-            if(Intersector.overlaps(getBoundingRectangle(), new Rectangle(powerUp.getX()+8, powerUp.getY()+8, 8,8))) {
+        for(PowerUp powerUp:screen.getPowerUps()) {
+            if(Intersector.overlaps(getBoundingRectangle(), new Rectangle(powerUp.getX()+4, powerUp.getY()+4, 8,8))) {
                 addPower(powerUp.getType());
-                powerUp.destory();
+                powerUp.destroy();
             }
         }
 
@@ -113,7 +119,7 @@ public class Player extends Sprite {
                 visiable = !visiable;
                 vTimer = 0;
             }
-            if(blinkTimer>2) {
+            if(blinkTimer>3) {
                 invincible = false;
                 blink = false;
                 visiable = true;
@@ -130,11 +136,10 @@ public class Player extends Sprite {
             respawn();
         }
 
-
-        for(Explosion e: screen.getExpolsion()) {
+        for(Explosion e: screen.getExpolsions()) {
             for(Flame f: e.getFlames()) {
-                if(Intersector.overlaps(getBoundingRectangle(), f.getBoundingRectangle())) {
-                    if(!invincible)
+                if(Intersector.overlaps(getBoundingRectangle(), new Rectangle(f.getX()+4, f.getY()+4, 8,8))) {
+                    if(!invincible && currentState != State.DEATH)
                         kill();
                 }
             }
@@ -146,26 +151,35 @@ public class Player extends Sprite {
         switch (type) {
             case BOMB:
                 bombs++;
-                System.out.println("bombs++");
                 break;
             case POWER:
                 power++;
-                System.out.println("power++");
                 break;
         }
     }
 
 
     public void kill() {
-        b2body.setLinearVelocity(new Vector2(0,0));
-        lives--;
-        currentState = State.DEATH;
+        if(currentState != State.DEATH) {
+            b2body.setLinearVelocity(new Vector2(0, 0));
+            lives--;
+            currentState = State.DEATH;
+            //b2body.setActive(false);
+            Filter f = new Filter();
+            f.maskBits =  0;
+            b2body.getFixtureList().first().setFilterData(f);
+        }
     }
 
     private void respawn() {
         currentState = State.STOP;
         b2body.setTransform(24,216,0);
         blink = true;
+        b2body.setActive(true);
+        Filter f = new Filter();
+        f.maskBits = Bomberman.SOLID_BIT | Bomberman.BRICK_BIT | Bomberman.ENEMY_BIT | Bomberman.BOMB_BIT;
+        f.categoryBits = Bomberman.PLAYER_BIT;
+        b2body.getFixtureList().first().setFilterData(f);
     }
 
     public TextureRegion getFrame(float dt) {
@@ -251,9 +265,9 @@ public class Player extends Sprite {
         CircleShape shape = new CircleShape();
         shape.setRadius(7.5f);
         fdef.filter.categoryBits = Bomberman.PLAYER_BIT;
-        fdef.filter.maskBits = Bomberman.SOLID_BIT | Bomberman.BRICK_BIT;
+        fdef.filter.maskBits = Bomberman.SOLID_BIT | Bomberman.BRICK_BIT | Bomberman.ENEMY_BIT | Bomberman.BOMB_BIT;
 
         fdef.shape = shape;
-        b2body.createFixture(fdef).setUserData("player");
+        b2body.createFixture(fdef).setUserData(this);
     }
 }

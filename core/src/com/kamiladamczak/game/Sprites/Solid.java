@@ -60,7 +60,6 @@ public class Solid extends Sprite {
         Gdx.app.log("Brick", "Collision");
         setCategoryFilter(Bomberman.DESTORYED_BIT);
         getCell().setTile(null);
-        Hud.addScore(200);
     }
 
 }
