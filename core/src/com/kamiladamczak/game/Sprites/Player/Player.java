@@ -10,7 +10,6 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.Filter;
-import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
@@ -20,8 +19,6 @@ import com.kamiladamczak.game.Sprites.Explosion.Explosion;
 import com.kamiladamczak.game.Sprites.Explosion.Flame;
 import com.kamiladamczak.game.Sprites.PowerUp;
 
-import java.util.ArrayList;
-
 
 public class Player extends Sprite {
     public final static float STOPFACTOR = .00f;
@@ -29,14 +26,15 @@ public class Player extends Sprite {
 
 
     public enum State {DOWN, LEFT, UP, RIGHT, STOP, DEATH};
-    public State currentState;
-    public State previousState;
+    private State currentState;
+    private State previousState;
 
     public enum Direction {DOWN, LEFT, UP, RIGHT};
     public Direction dir;
 
     public World world;
-    public Body b2body;
+
+    public  Body b2body;
 
     private TextureRegion horiStand;
     private TextureRegion downStand;
@@ -47,7 +45,7 @@ public class Player extends Sprite {
     private Animation<TextureRegion> death;
     private float stateTimer;
     private boolean blink;
-    private boolean visiable;
+    private boolean visible;
     private float vTimer;
     private float blinkTimer;
 
@@ -66,7 +64,7 @@ public class Player extends Sprite {
         currentState = State.DOWN;
         previousState = State.DOWN;
         blink = false;
-        visiable = true;
+        visible = true;
         stateTimer = vTimer =  blinkTimer = 0;
 
         Array<TextureRegion> frames = new Array<TextureRegion>();
@@ -105,7 +103,7 @@ public class Player extends Sprite {
         setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight()/2);
         setRegion(getFrame(dt));
 
-        for(PowerUp powerUp:screen.getPowerUps()) {
+        for(PowerUp powerUp:screen.entityManager.getPowerUps()) {
             if(Intersector.overlaps(getBoundingRectangle(), new Rectangle(powerUp.getX()+4, powerUp.getY()+4, 8,8))) {
                 addPower(powerUp.getType());
                 powerUp.destroy();
@@ -116,18 +114,18 @@ public class Player extends Sprite {
             blinkTimer += dt;
             invincible = true;
             if(vTimer >= .1) {
-                visiable = !visiable;
+                visible = !visible;
                 vTimer = 0;
             }
             if(blinkTimer>3) {
                 invincible = false;
                 blink = false;
-                visiable = true;
+                visible = true;
                 blinkTimer = 0;
             }
         }
 
-        if(visiable)
+        if(visible)
             setAlpha(1);
          else
             setAlpha(0);
@@ -136,7 +134,7 @@ public class Player extends Sprite {
             respawn();
         }
 
-        for(Explosion e: screen.getExpolsions()) {
+        for(Explosion e: screen.entityManager.getExplosions()) {
             for(Flame f: e.getFlames()) {
                 if(Intersector.overlaps(getBoundingRectangle(), new Rectangle(f.getX()+4, f.getY()+4, 8,8))) {
                     if(!invincible && currentState != State.DEATH)
@@ -159,18 +157,6 @@ public class Player extends Sprite {
     }
 
 
-    public void kill() {
-        if(currentState != State.DEATH) {
-            b2body.setLinearVelocity(new Vector2(0, 0));
-            lives--;
-            currentState = State.DEATH;
-            //b2body.setActive(false);
-            Filter f = new Filter();
-            f.maskBits =  0;
-            b2body.getFixtureList().first().setFilterData(f);
-        }
-    }
-
     private void respawn() {
         currentState = State.STOP;
         b2body.setTransform(24,216,0);
@@ -182,7 +168,7 @@ public class Player extends Sprite {
         b2body.getFixtureList().first().setFilterData(f);
     }
 
-    public TextureRegion getFrame(float dt) {
+    private TextureRegion getFrame(float dt) {
         currentState = getState();
 
         TextureRegion region;
@@ -235,6 +221,33 @@ public class Player extends Sprite {
         return region;
     }
 
+    private void definePlayer() {
+        BodyDef bdef = new BodyDef();
+        bdef.position.set(24,216);
+        bdef.type = BodyDef.BodyType.DynamicBody;
+        b2body = world.createBody(bdef);
+
+        FixtureDef fdef = new FixtureDef();
+        CircleShape shape = new CircleShape();
+        shape.setRadius(7.5f);
+        fdef.filter.categoryBits = Bomberman.PLAYER_BIT;
+        fdef.filter.maskBits = Bomberman.SOLID_BIT | Bomberman.BRICK_BIT | Bomberman.ENEMY_BIT | Bomberman.BOMB_BIT;
+
+        fdef.shape = shape;
+        b2body.createFixture(fdef).setUserData(this);
+    }
+
+    public void kill() {
+        if(currentState != State.DEATH) {
+            b2body.setLinearVelocity(new Vector2(0, 0));
+            lives--;
+            currentState = State.DEATH;
+            Filter f = new Filter();
+            f.maskBits =  0;
+            b2body.getFixtureList().first().setFilterData(f);
+        }
+    }
+
     public State getState() {
         if(currentState.equals(State.DEATH))
             return State.DEATH;
@@ -255,19 +268,4 @@ public class Player extends Sprite {
 
     }
 
-    private void definePlayer() {
-        BodyDef bdef = new BodyDef();
-        bdef.position.set(24,216);
-        bdef.type = BodyDef.BodyType.DynamicBody;
-        b2body = world.createBody(bdef);
-
-        FixtureDef fdef = new FixtureDef();
-        CircleShape shape = new CircleShape();
-        shape.setRadius(7.5f);
-        fdef.filter.categoryBits = Bomberman.PLAYER_BIT;
-        fdef.filter.maskBits = Bomberman.SOLID_BIT | Bomberman.BRICK_BIT | Bomberman.ENEMY_BIT | Bomberman.BOMB_BIT;
-
-        fdef.shape = shape;
-        b2body.createFixture(fdef).setUserData(this);
-    }
 }

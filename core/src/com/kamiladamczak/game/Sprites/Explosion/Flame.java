@@ -2,14 +2,12 @@ package com.kamiladamczak.game.Sprites.Explosion;
 
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
@@ -18,12 +16,8 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.kamiladamczak.game.Bomberman;
 import com.kamiladamczak.game.Screens.PlayScreen;
-import com.kamiladamczak.game.Sprites.Bomb;
 import com.kamiladamczak.game.Sprites.Brick;
-import com.kamiladamczak.game.Sprites.InteractiveTileObject;
 import com.kamiladamczak.game.Sprites.Player.Player;
-import com.kamiladamczak.game.Sprites.PowerUp;
-import com.kamiladamczak.game.Sprites.Solid;
 
 public class Flame extends Sprite {
 
@@ -68,7 +62,7 @@ public class Flame extends Sprite {
             Rectangle rect = ((RectangleMapObject) object).getRectangle();
             Rectangle pRect = new Rectangle(this.getX()-8, this.getY()-8, 16, 16);
             if (Intersector.overlaps(rect, pRect)) {
-                for(Brick b:screen.getBricks()) {
+                for(Brick b:screen.entityManager.getBricks()) {
                     if(b.getPosition().x == rect.getX() && b.getPosition().y == rect.getY()) {
                         if(!b.isDestroyed)
                         b.destroy();
@@ -77,9 +71,9 @@ public class Flame extends Sprite {
             }
         }
 
-        for(int i=0; i <screen.getBombs().size; i++) {
-            if(Intersector.overlaps(screen.getBombs().get(i).getBoundingRectangle(), new Rectangle(getX(), getY(), 8,8))){
-                screen.getBombs().get(i).otherDetonate();
+        for(int i=0; i <screen.entityManager.getBombs().size; i++) {
+            if(Intersector.overlaps(screen.entityManager.getBombs().get(i).getBoundingRectangle(), new Rectangle(getX(), getY(), 8,8))){
+                screen.entityManager.getBombs().get(i).otherDetonate();
             }
         }
     }

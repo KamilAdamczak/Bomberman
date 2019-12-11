@@ -2,7 +2,6 @@ package com.kamiladamczak.game.Sprites.Player;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Vector2;
 import com.kamiladamczak.game.Screens.PlayScreen;
 import com.kamiladamczak.game.Sprites.Bomb;
@@ -17,7 +16,7 @@ public class PlayerController {
 
     public void update(float dt) {
 
-        if(player.currentState != Player.State.DEATH) {
+        if(player.getState() != Player.State.DEATH) {
 
             if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
                 player.b2body.setLinearVelocity(new Vector2(player.b2body.getLinearVelocity().x, 0f));
@@ -49,14 +48,14 @@ public class PlayerController {
                 player.dir = Player.Direction.LEFT;
             }
 
-            if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE) && screen.getBombs().size < player.bombs) {
+            if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE) && screen.entityManager.getBombs().size < player.bombs) {
                 //Put a bomb
                 Vector2 playerPosition = screen.getGridPosition(player.b2body.getPosition().x, player.b2body.getPosition().y);
                 boolean canCreate = false;
-                if (screen.getBombs().isEmpty()) {
+                if (screen.entityManager.getBombs().isEmpty()) {
                     canCreate = true;
                 } else {
-                    for (Bomb bomb : screen.getBombs()) {
+                    for (Bomb bomb : screen.entityManager.getBombs()) {
                         if ((int) bomb.getX() == playerPosition.x * 16 && (int) bomb.getY() == playerPosition.y * 16) {
                             canCreate = false;
                             break;
@@ -67,7 +66,7 @@ public class PlayerController {
                 }
 
                 if (canCreate) {
-                    screen.newBomb(new Bomb(screen, player, playerPosition.x, playerPosition.y, player.power));
+                    screen.entityManager.newBomb(new Bomb(screen, player, playerPosition.x, playerPosition.y, player.power));
                 }
 
             }

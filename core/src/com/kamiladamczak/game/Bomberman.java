@@ -16,7 +16,7 @@ public class Bomberman extends Game {
 	public static final short SOLID_BIT = 1;
 	public static final short PLAYER_BIT = 2;
 	public static final short DAMAGE_BIT = 4;
-	public static final short DESTORYED_BIT = 16;
+	public static final short DESTROYED_BIT = 16;
 	public static final short BOMB_BIT = 32;
 	public static final short BRICK_BIT = 64;
 	public static final short ENEMY_BIT = 128;

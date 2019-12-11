@@ -5,7 +5,6 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
@@ -13,24 +12,17 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.kamiladamczak.game.Bomberman;
 import com.kamiladamczak.game.Scenes.Hud;
-import com.kamiladamczak.game.Sprites.Bomb;
-import com.kamiladamczak.game.Sprites.Brick;
-import com.kamiladamczak.game.Sprites.Enemies.Slime;
-import com.kamiladamczak.game.Sprites.Explosion.Explosion;
-import com.kamiladamczak.game.Sprites.Player.Player;
-import com.kamiladamczak.game.Sprites.Player.PlayerController;
-import com.kamiladamczak.game.Sprites.PowerUp;
 import com.kamiladamczak.game.Tools.B2WorldCreator;
+import com.kamiladamczak.game.Tools.EntityManager;
 import com.kamiladamczak.game.Tools.WorldContactListener;
 
-
 public class PlayScreen implements Screen {
-    TextureAtlas atlas;
+    //
+    private TextureAtlas atlas;
     private Bomberman game;
 
     //Camera
@@ -41,34 +33,17 @@ public class PlayScreen implements Screen {
     private Hud hud;
 
     //Tiled Map variables
-    private TmxMapLoader maploader;
     public TiledMap map;
     private OrthogonalTiledMapRenderer renderer;
 
-    private Array<Bomb> bombs = new Array<>();
-
-    private Array<Explosion> expolsions = new Array<>();
-
-    private Array<Brick> bricks = new Array<>();;
-
-    private Array<PowerUp> powerUps = new Array<>();
-
-    private Array<Slime> slimes = new Array<>();
 
     //Box2D variables
     private World world;
     private Box2DDebugRenderer b2dr;
 
-    private Player player;
-    private PlayerController pcon;
+    public EntityManager entityManager;
 
-    public Player getPlayer() {
-        return player;
-    }
-
-
-
-    private boolean deboug = false;
+    private boolean debug = false;
     public PlayScreen(Bomberman game) {
         this.game = game;
     }
@@ -86,7 +61,7 @@ public class PlayScreen implements Screen {
         hud = new Hud(game.batch);
 
         //Load our map and setup our map renderer
-        maploader = new TmxMapLoader();
+        TmxMapLoader maploader = new TmxMapLoader();
         map = maploader.load("level1.tmx");
         renderer = new OrthogonalTiledMapRenderer(map);
 
@@ -95,10 +70,9 @@ public class PlayScreen implements Screen {
 
         world = new World(new Vector2(0, 0), true);
         b2dr = new Box2DDebugRenderer();
-
+        entityManager = new EntityManager(world, this);
         new B2WorldCreator(this);
-        player = new Player(world, this);
-        pcon = new PlayerController(player, this);
+
         world.setContactListener(new WorldContactListener());
     }
 
@@ -107,29 +81,17 @@ public class PlayScreen implements Screen {
     }
 
     public void handleInput(float dt) {
-
         if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE))
-            deboug = !deboug;
-
-        pcon.update(dt);
-
+            debug = !debug;
     }
-
 
     public void update(float dt) {
         handleInput(dt);
-       world.step(1/60f, 0,2);
+        entityManager.update(dt);
+
+        world.step(1/60f, 0,2);
         hud.update(dt, this);
-        player.update(dt);
-        for(Bomb bomb: bombs) {
-            bomb.update(dt);
-        }
-        for(Explosion expolsion: expolsions) {
-            expolsion.update(dt);
-        }
-        for(Slime slime: slimes) {
-            slime.update(dt);
-        }
+
         gamecam.update();
         renderer.setView(gamecam);
     }
@@ -137,39 +99,21 @@ public class PlayScreen implements Screen {
     @Override
     public void render(float v) {
         update(v);
-
         Gdx.gl.glClearColor(1,0,0,1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
         renderer.render();
 
-        if(deboug)
+        if(debug)
         b2dr.render(world, gamecam.combined);
+
         game.batch.setProjectionMatrix(gamecam.combined);
         game.batch.begin();
 
-        for(Bomb bomb:bombs) {
-            bomb.draw(game.batch);
-        }
-
-        for(PowerUp powerUp: powerUps) {
-            powerUp.draw(game.batch);
-        }
-
-        for(Explosion exposion:expolsions) {
-            exposion.draw(game.batch);
-        }
-
-        for(Slime slime: slimes) {
-            slime.draw(game.batch);
-        }
-
-        player.draw(game.batch);
+        entityManager.draw(game.batch);
 
         game.batch.end();
         game.batch.setProjectionMatrix(hud.stage.getCamera().combined);
         hud.stage.draw();
-
     }
 
     @Override
@@ -209,55 +153,6 @@ public class PlayScreen implements Screen {
         return map;
     }
 
-    public Array<Bomb> getBombs() {
-        return bombs;
-    }
-    public void newBomb(Bomb bomb) {
-        bombs.add(bomb);
-    }
-    public void destroyBomb(Bomb bomb) {
-        bombs.removeValue(bomb, true);
-    }
-
-    public Array<Brick> getBricks() {
-        return bricks;
-    }
-    public void addBrick(Brick brick) {
-        bricks.add(brick);
-    }
-    public void removeBrick(Brick brick) {
-        bricks.removeValue(brick, true);
-    };
-
-    public Array<Explosion> getExpolsions() {
-        return expolsions;
-    }
-    public void newExplosion(Explosion explosion) {
-        expolsions.add(explosion);
-    }
-    public void destroyExplosion(Explosion explosion) {
-        expolsions.removeValue(explosion, true);
-    }
-
-    public Array<PowerUp> getPowerUps() {
-        return powerUps;
-    }
-    public void addPowerUp(PowerUp powerUp) {
-        powerUps.add(powerUp);
-    }
-    public void removePowerUp(PowerUp powerUp) {
-        powerUps.removeValue(powerUp, true);
-    }
-
-    public Array<Slime> getSlimes() {
-        return slimes;
-    };
-    public void addSlime(Slime slime) {
-        slimes.add(slime);
-    }
-    public void removeSlime(Slime slime) {
-        slimes.removeValue(slime, true);
-    };
 
     public Vector2 getGridPosition(float x, float y) {
         return new Vector2(((int)x/16), ((int)y/16));

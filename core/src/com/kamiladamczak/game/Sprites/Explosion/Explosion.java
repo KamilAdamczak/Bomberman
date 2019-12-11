@@ -152,7 +152,7 @@ public class Explosion {
         }
 
         if(canDestory && flames.isEmpty()) {
-            screen.destroyExplosion(this);
+            screen.entityManager.destroyExplosion(this);
         }
     }
 

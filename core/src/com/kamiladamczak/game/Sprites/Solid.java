@@ -14,7 +14,6 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.kamiladamczak.game.Bomberman;
-import com.kamiladamczak.game.Scenes.Hud;
 import com.kamiladamczak.game.Screens.PlayScreen;
 
 public class Solid extends Sprite {
@@ -58,7 +57,7 @@ public class Solid extends Sprite {
 
     public void Destoryed() {
         Gdx.app.log("Brick", "Collision");
-        setCategoryFilter(Bomberman.DESTORYED_BIT);
+        setCategoryFilter(Bomberman.DESTROYED_BIT);
         getCell().setTile(null);
     }
 

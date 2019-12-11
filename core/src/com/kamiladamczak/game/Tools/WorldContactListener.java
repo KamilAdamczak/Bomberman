@@ -6,11 +6,8 @@ import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.Manifold;
 import com.kamiladamczak.game.Bomberman;
-import com.kamiladamczak.game.Sprites.Bomb;
 import com.kamiladamczak.game.Sprites.Enemies.Enemy;
-import com.kamiladamczak.game.Sprites.Explosion.Flame;
 import com.kamiladamczak.game.Sprites.Player.Player;
-import com.kamiladamczak.game.Sprites.Solid;
 
 public class WorldContactListener implements ContactListener {
 

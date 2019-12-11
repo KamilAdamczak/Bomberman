@@ -7,7 +7,6 @@ import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
@@ -17,7 +16,6 @@ import com.badlogic.gdx.utils.Array;
 import com.kamiladamczak.game.Bomberman;
 import com.kamiladamczak.game.Screens.PlayScreen;
 import com.kamiladamczak.game.Sprites.Explosion.Explosion;
-import com.kamiladamczak.game.Sprites.Explosion.Flame;
 import com.kamiladamczak.game.Sprites.Player.Player;
 
 
@@ -92,7 +90,7 @@ public class Bomb extends Sprite {
 
     private void boom() {
         world.destroyBody(b2body);
-        screen.destroyBomb(this);
+        screen.entityManager.destroyBomb(this);
     }
 
     private void defineBomb() {
@@ -104,14 +102,14 @@ public class Bomb extends Sprite {
 
         shape.setAsBox(5, 5);
         fdef.shape = shape;
-        fdef.filter.categoryBits = Bomberman.DESTORYED_BIT;
+        fdef.filter.categoryBits = Bomberman.DESTROYED_BIT;
         b2body.createFixture(fdef);
         b2body.setUserData(this);
     }
 
     public void detonate() {
         this.boom();
-        screen.newExplosion(new Explosion(screen, player, this, power));
+        screen.entityManager.newExplosion(new Explosion(screen, player, this, power));
     }
 
     public void otherDetonate() {

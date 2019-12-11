@@ -15,7 +15,6 @@ public class PowerUp extends Sprite{
 
     private TextureRegion sprite;
 
-
     public PowerUp(PlayScreen screen, float x, float y, TYPE type) {
         this.screen = screen;
         this.type = type;
@@ -39,7 +38,7 @@ public class PowerUp extends Sprite{
     }
 
     public void destroy() {
-        screen.removePowerUp(this);
+        screen.entityManager.removePowerUp(this);
     }
 
 }

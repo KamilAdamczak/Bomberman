@@ -61,10 +61,10 @@ public class Hud implements Disposable {
     }
 
     public void update(float dt, PlayScreen screen)  {
-        score = screen.getPlayer().score;
-        lives = screen.getPlayer().lives;
-        bombs = screen.getPlayer().bombs-screen.getBombs().size;
-        power = screen.getPlayer().power;
+        score = screen.entityManager.getPlayer().score;
+        lives = screen.entityManager.getPlayer().lives;
+        bombs = screen.entityManager.getPlayer().bombs-screen.entityManager.getBombs().size;
+        power = screen.entityManager.getPlayer().power;
 
         scoreLabel.setText(String.format("SCORE: %d", score));
         livesLabel.setText(String.format("LIVES: %d", lives));
